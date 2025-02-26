@@ -1,1 +1,44 @@
-test
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${PROJECT_NAME}
+  namespace: ${NAME_SPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${PROJECT_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${PROJECT_NAME}
+    spec:
+      imagePullSecrets:
+        - name: regcred  # Secret untuk menarik image dari DigitalOcean Container Registry
+      containers:
+        - name: ${PROJECT_NAME}
+          image: registry.digitalocean.com/archanist-dev/${PROJECT_NAME}:${IMAGE_TAG}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "800Mi"
+              cpu: "500m"
+            requests:
+              memory: "400Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${PROJECT_NAME}
+  namespace: default
+spec:
+  selector:
+    app: ${PROJECT_NAME}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
