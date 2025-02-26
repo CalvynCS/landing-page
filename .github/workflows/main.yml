@@ -43,7 +43,7 @@ jobs:
 
     - name: Update Kubernetes manifest with new image tag
       run: |
-        sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yml
+        sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yaml
 
     - name: Replace variables in Kubernetes manifest
       run: |
