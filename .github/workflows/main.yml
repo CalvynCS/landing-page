@@ -50,9 +50,12 @@ jobs:
       run: |
         sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yaml
 
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
     - name: Copy Kubernetes manifest to server
       run: |
-        scp -i ${{ secrets.SSH_PRIVATE_KEY }} .deployments/test.yaml root@${{ secrets.K3S_VM_IP }}:/root/.deployments/test.yaml
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" scp .deployments/test.yaml root@${{ secrets.K3S_VM_IP }}:/root/.deployments/test.yaml
 
     - name: Deploy to K3s via SSH
       uses: appleboy/ssh-action@master
