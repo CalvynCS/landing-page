@@ -41,28 +41,25 @@ jobs:
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         build-args: VERSION=${{ env.IMAGE_TAG }}
 
-    - name: Update Kubernetes manifest with new image tag
-      run: |
-        sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yaml
-
-    - name: Replace variables in Kubernetes manifest
-      run: |
-        export PROJECT_NAME="landing-pages-01"
-        export NAME_SPACE="test"
-        export IMAGE_TAG="${{ github.sha }}"
-        envsubst < .deployments/test.yaml > .deployments/test.yaml.tmp && mv .deployments/test.yaml.tmp .deployments/test.yaml
-
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: "latest"
-
     - name: Configure Kubernetes credentials
       run: |
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
-    - name: Deploy to K3s using kubectl
+    - name: Update Kubernetes manifest with new image tag
       run: |
-        kubectl apply -f .deployments/test.yaml
-        kubectl rollout restart deployment landing-pages
+        sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yaml
+
+    - name: Copy Kubernetes manifest to server
+      run: |
+        scp -i ${{ secrets.SSH_PRIVATE_KEY }} .deployments/test.yaml root@${{ secrets.K3S_VM_IP }}:/root/.deployments/test.yaml
+
+    - name: Deploy to K3s via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.K3S_VM_IP }}
+        username: root
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          kubectl apply -f /root/.deployments/test.yaml
+          kubectl rollout restart deployment landing-pages
