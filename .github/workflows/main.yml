@@ -59,8 +59,8 @@ jobs:
 
     - name: Configure Kubernetes credentials
       run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
     - name: Deploy to K3s using kubectl
       run: |
