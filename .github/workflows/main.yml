@@ -57,7 +57,7 @@ jobs:
       with:
         host: ${{ secrets.K3S_VM_IP }}
         username: root
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.SSH_PASSWORD }}
         script: |
-          kubectl apply -f /root/repo/.deployments/test.yml
+          kubectl apply -f /root/repo/.deployments/test.yaml
           kubectl rollout restart deployment landing-pages
