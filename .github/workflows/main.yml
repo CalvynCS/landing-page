@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Ganti dengan nama container registry Digital Ocean Anda
-      REGISTRY: registry.digitalocean.com/arc-registry
+      REGISTRY: registry.digitalocean.com/archanist-dev
       # Ganti dengan nama image yang Anda inginkan
       IMAGE_NAME: landing-page-01
 
