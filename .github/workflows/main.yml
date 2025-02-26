@@ -1,31 +1,57 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Landing-Page CI
+name: CI/CD - Deploy React App to Kubernetes on Digital Ocean
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - staging
+      - publish
 
 jobs:
-  build:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    env:
+      # Ganti dengan nama container registry Digital Ocean Anda
+      REGISTRY: registry.digitalocean.com/arc-registry
+      # Ganti dengan nama image yang Anda inginkan
+      IMAGE_NAME: landing-page-01
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DigitalOcean Container Registry with service account
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Deploy to Kubernetes
+        uses: kubectl-action/kubectl@v0.7.0
+        env:
+          # Ganti dengan nama klaster Kubernetes Anda
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          # Tentukan namespace berdasarkan branch
+          K8S_NAMESPACE: ${{ github.ref == 'refs/heads/main' && 'production' || (github.ref == 'refs/heads/staging' && 'staging' || 'publish') }}
+          # Ganti dengan path ke folder .deployments Anda
+          KUBECTL_APPLY: true
+          KUBECTL_APPLY_FLAGS: "-n ${{ env.K8S_NAMESPACE }} -f ./.deployments"
+          # Update image di deployment
+          KUBECTL_PATCH: true
+          KUBECTL_PATCH_TARGET: "deployment/${{ env.IMAGE_NAME }}"
+          KUBECTL_PATCH_STRATEGY: strategic
+          KUBECTL_PATCH_FIELD: "spec.template.spec.containers[0].image"
+          KUBECTL_PATCH_VALUE: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
