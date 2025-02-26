@@ -52,12 +52,17 @@ jobs:
         export IMAGE_TAG="${{ github.sha }}"
         envsubst < .deployments/test.yaml > .deployments/test.yaml.tmp && mv .deployments/test.yaml.tmp .deployments/test.yaml
 
-    - name: Deploy to K3s via SSH
-      uses: appleboy/ssh-action@master
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
       with:
-        host: ${{ secrets.K3S_VM_IP }}
-        username: root
-        password: ${{ secrets.SSH_PASSWORD }}
-        script: |
-          kubectl apply -f /root/repo/.deployments/test.yaml
-          kubectl rollout restart deployment landing-pages
+        version: "latest"
+
+    - name: Configure Kubernetes credentials
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+
+    - name: Deploy to K3s using kubectl
+      run: |
+        kubectl apply -f .deployments/test.yaml
+        kubectl rollout restart deployment landing-pages
