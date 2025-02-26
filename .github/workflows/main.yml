@@ -8,15 +8,11 @@ on:
 
 env:
   VERSION: 1.0.0
-  # Ganti dengan nama container registry Digital Ocean Anda
   REGISTRY: registry.digitalocean.com/archanist-dev
-  # Ganti dengan nama image yang Anda inginkan
   IMAGE_NAME: landing-pages-01
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -29,15 +25,17 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Login to DigitalOcean Container Registry with service account
+    - name: Authenticate with DigitalOcean
       uses: digitalocean/action-doctl@v2
       with:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Log in to DigitalOcean Container Registry
+      run: doctl registry login
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{env.VERSION}}
-        build-args: |
-          VERSION=${{env.VERSION}}
+        build-args: VERSION=${{env.VERSION}}
