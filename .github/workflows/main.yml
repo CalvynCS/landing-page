@@ -51,6 +51,11 @@ jobs:
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
+    - name: Replace variables in Kubernetes manifest
+      run: |
+        sed -i "s|\${PROJECT_NAME}|landing-page|g" .deployments/test.yaml
+        sed -i "s|\${NAME_SPACE}|test|g" .deployments/test.yaml
+
     - name: Copy Repo Manifest to Droplet
       uses: appleboy/scp-action@master
       with:
