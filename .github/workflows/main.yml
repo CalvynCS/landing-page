@@ -50,12 +50,6 @@ jobs:
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
-    - name: Update Kubernetes Manifest
-      run: |
-        sed -i "s|image: .*|image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}|" ${DEPLOYMENT_FILE}
-        envsubst < ${DEPLOYMENT_FILE} > ${DEPLOYMENT_FILE}.tmp
-        mv ${DEPLOYMENT_FILE}.tmp ${DEPLOYMENT_FILE}
-
     - name: Copy Repo Manifest to Droplet
       uses: appleboy/scp-action@master
       with:
@@ -63,7 +57,13 @@ jobs:
         username: root
         password: ${{ secrets.SSH_PASSWORD }}
         source: ${{ env.REPO_FILE }}
-        target: /root/calvyn/project
+        target: /root/calvyn/project/
+
+    - name: Update Kubernetes Manifest
+      run: |
+        sed -i "s|image: .*|image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}|" ${DEPLOYMENT_FILE}
+        envsubst < ${DEPLOYMENT_FILE} > ${DEPLOYMENT_FILE}.tmp
+        mv ${DEPLOYMENT_FILE}.tmp ${DEPLOYMENT_FILE}
     
     - name: Deploy to K3s via SSH
       uses: appleboy/ssh-action@master
