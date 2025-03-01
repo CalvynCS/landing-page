@@ -50,6 +50,7 @@ spec:
       port: 80
       targetPort: 80
   type: LoadBalancer
+  loadBalancerIP: ${WORKER_IP}
 
 ---
 apiVersion: autoscaling/v2
