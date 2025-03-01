@@ -16,7 +16,7 @@ env:
   NAMESPACE: test
   NAME_SPACE: calvyn
   REPO_FILE: .
-  WORKER_IP: ${{ secret.WORKER_IP }}
+  WORKER_IP: ${{ secrets.WORKER_IP }}
 
 jobs:
   build:
