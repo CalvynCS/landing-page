@@ -82,5 +82,5 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         script: |
           echo "Deploying new manifest..."
-          kubectl apply -f /root/deployment/test.yaml
+          kubectl apply -f /root/calvyn/project/.deployments/test.yaml
           kubectl rollout restart deployment ${{ env.PROJECT_NAME }} -n ${{ env.NAMESPACE }}
