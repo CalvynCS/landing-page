@@ -10,6 +10,9 @@ env:
   REGISTRY: registry.digitalocean.com/archanist-dev
   IMAGE_NAME: landing-pages-01
   IMAGE_TAG: ${{ github.sha }}
+  DEPLOYMENT_FILE: .deployments/test.yaml
+  PROJECT_NAME: landing-page
+  NAMESPACE: test
 
 jobs:
   build:
@@ -50,7 +53,20 @@ jobs:
       run: |
         sed -i "s|image: registry.digitalocean.com/archanist-dev/landing-pages-01:.*|image: registry.digitalocean.com/archanist-dev/landing-pages-01:${{ env.IMAGE_TAG }}|" .deployments/test.yaml
 
-    - name: Deploy to K3s via kubectl (no need to copy file to server)
+    - name: Replace Variables in Kubernetes YAML
       run: |
-        kubectl apply -f .deployments/test.yaml
-        kubectl rollout restart deployment landing-pages
+        envsubst < .deployments/test.yaml > .deployments/test.yaml.tmp
+        mv .deployments/test.yaml.tmp .deployments/test.yaml
+    
+    - name: Deploy to K3s via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.K3S_VM_IP }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          echo "Deploying new manifest..."
+          kubectl apply -f - <<EOF
+          $(cat ${{ env.DEPLOYMENT_FILE }})
+          EOF
+          kubectl rollout restart deployment ${{ env.PROJECT_NAME }} -n ${{ env.NAMESPACE }}
