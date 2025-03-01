@@ -83,4 +83,4 @@ jobs:
         script: |
           echo "Deploying new manifest..."
           kubectl apply -f /root/calvyn/project/.deployments/test.yaml
-          kubectl rollout restart deployment ${{ env.PROJECT_NAME }} -n ${{ env.NAMESPACE }}
+          # kubectl rollout restart deployment ${{ env.PROJECT_NAME }} -n ${{ env.NAMESPACE }}
