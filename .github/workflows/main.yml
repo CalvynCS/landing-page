@@ -59,7 +59,7 @@ jobs:
         sed -i "s|\${NAME_SPACE}|calvyn|g" .deployments/test.yaml
         sed -i "s|\${CONTAINER_REGISTRY}|landing-pages-01|g" .deployments/test.yaml
         sed -i "s|\${IMAGE_TAG}|${{ env.IMAGE_TAG }}|g" .deployments/test.yaml
-        sed -i "s|\${WORKER_IP}|${{ env.WORKER_IP }}|g" .deployments/test.yaml
+        sed -i "s|\${WORKER_IP}|${{ secret.WORKER_IP }}|g" .deployments/test.yaml
 
     - name: Copy Repo Manifest to Droplet
       uses: appleboy/scp-action@master
