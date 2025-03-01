@@ -14,7 +14,7 @@ env:
   PROJECT_NAME: landing-page
   CONTAINER_REGISTRY: landing-pages-01
   NAMESPACE: test
-  NAME_SPACE: test
+  NAME_SPACE: calvyn
   REPO_FILE: .
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
     - name: Replace variables in Kubernetes manifest
       run: |
         sed -i "s|\${PROJECT_NAME}|landing-page|g" .deployments/test.yaml
-        sed -i "s|\${NAME_SPACE}|test|g" .deployments/test.yaml
+        sed -i "s|\${NAME_SPACE}|calvyn|g" .deployments/test.yaml
         sed -i "s|\${CONTAINER_REGISTRY}|landing-pages-01|g" .deployments/test.yaml
         sed -i "s|\${IMAGE_TAG}|${{ env.IMAGE_TAG }}|g" .deployments/test.yaml
 
