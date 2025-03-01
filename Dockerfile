@@ -1,10 +1,10 @@
 FROM node:latest
 
-WORKDIR /root/calvyn/landing_page/plant-me
+WORKDIR /root/calvyn/project
 
-COPY public/ /root/calvyn/landing_page/plant-me
-COPY src/ /root/calvyn/landing_page/plant-me
-COPY package.json /root/calvyn/landing_page/plant-me
+COPY public/ /root/calvyn/project
+COPY src/ /root/calvyn/project
+COPY package.json /root/calvyn/project
 
 RUN npm install
 CMD ["npm", "start"]
