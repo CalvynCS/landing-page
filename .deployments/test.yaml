@@ -35,6 +35,7 @@ spec:
             requests:
               memory: "400Mi"
               cpu: "250m"
+          command: ["npm", "start"]
 ---
 apiVersion: v1
 kind: Service
