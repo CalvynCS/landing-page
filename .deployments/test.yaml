@@ -27,7 +27,7 @@ spec:
           image: registry.digitalocean.com/archanist-dev/${CONTAINER_REGISTRY}:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
-            - containerPort: 81
+            - containerPort: 80
           resources:
             limits:
               memory: "800Mi"
@@ -48,30 +48,30 @@ spec:
   type: NodePort
   ports:
     - protocol: TCP
-      port: 81
-      targetPort: 81
-      nodePort: 30081
+      port: 80
+      targetPort: 80
+      nodePort: 30080
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ${PROJECT_NAME}
-  namespace: ${NAME_SPACE}
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-spec:
-  rules:
-    - host: web.arc.dev
-      http:
-        paths:
-          - path: /
-            pathType: Exact
-            backend:
-              service:
-                name:  ${PROJECT_NAME}
-                port:
-                  number: 81
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: ${PROJECT_NAME}
+#  namespace: ${NAME_SPACE}
+#  annotations:
+#    traefik.ingress.kubernetes.io/router.entrypoints: web
+#spec:
+#  rules:
+#    - host: web.arc.dev
+##      http:
+#        paths:
+#          - path: /
+#            pathType: Exact
+#            backend:
+#              service:
+#                name:  ${PROJECT_NAME}
+#                port:
+#                  number: 81
 
 ---
 apiVersion: autoscaling/v2
@@ -85,7 +85,7 @@ spec:
     kind: Deployment
     name: ${PROJECT_NAME}
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 2
   metrics:
     - type: Resource
       resource:
@@ -98,7 +98,7 @@ spec:
         stabilizationWindowSeconds: 10
         policies:
         - type: Pods
-          value: 3
+          value: 2
           periodSeconds: 5
       scaleDown:
         stabilizationWindowSeconds: 10
