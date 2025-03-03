@@ -30,11 +30,11 @@ spec:
             - containerPort: 80
           resources:
             limits:
-              memory: "800Mi"
-              cpu: "500m"
+              memory: "850Mi"
+              cpu: "800m"
             requests:
               memory: "400Mi"
-              cpu: "250m"
+              cpu: "600m"
           command: ["npm", "start"]
 ---
 apiVersion: v1
