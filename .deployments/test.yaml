@@ -71,7 +71,7 @@ spec:
               service:
                 name:  ${PROJECT_NAME}
                 port:
-                  number: 82
+                  number: 80
 
 ---
 apiVersion: autoscaling/v2
