@@ -27,7 +27,7 @@ spec:
           image: registry.digitalocean.com/archanist-dev/${CONTAINER_REGISTRY}:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 81
           resources:
             limits:
               memory: "800Mi"
@@ -45,12 +45,33 @@ metadata:
 spec:
   selector:
     app: ${PROJECT_NAME}
+  type: NodePort
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
-  loadBalancerIP: ${WORKER_IP}
+      port: 81
+      targetPort: 81
+      nodePort: 30081
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${PROJECT_NAME}
+  namespace: ${NAME_SPACE}
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: web.arc.dev
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name:  ${PROJECT_NAME}
+                port:
+                  number: 81
 
 ---
 apiVersion: autoscaling/v2
