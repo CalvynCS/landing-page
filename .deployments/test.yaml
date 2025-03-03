@@ -53,25 +53,25 @@ spec:
       nodePort: 30080
 
 ---
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: ${PROJECT_NAME}
-#  namespace: ${NAME_SPACE}
-#  annotations:
-#    traefik.ingress.kubernetes.io/router.entrypoints: web
-#spec:
-#  rules:
-#    - host: web.arc.dev
-##      http:
-#        paths:
-#          - path: /
-#            pathType: Exact
-#            backend:
-#              service:
-#                name:  ${PROJECT_NAME}
-#                port:
-#                  number: 81
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${PROJECT_NAME}
+  namespace: ${NAME_SPACE}
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: web.arc.dev
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name:  ${PROJECT_NAME}
+                port:
+                  number: 80
 
 ---
 apiVersion: autoscaling/v2
